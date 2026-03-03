@@ -14,10 +14,10 @@ const { requireLogin, requireAdmin } = require('./src/auth');
 
 const app = express();
 
-/* ===================== FIX DB DIRECTORY (RAILWAY SAFE) ===================== */
+/* ===================== FIX DB DIRECTORY ===================== */
 const dbDir = path.join(__dirname, 'db');
 if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir);
+  fs.mkdirSync(dbDir, { recursive: true });
 }
 
 /* ===================== OPEN DATABASE ===================== */
@@ -34,6 +34,21 @@ CREATE TABLE IF NOT EXISTS users (
 );
 `);
 
+/* ===================== AUTO CREATE DEFAULT ADMIN ===================== */
+const adminExists = db.prepare(
+  "SELECT id FROM users WHERE username = ?"
+).get("admin");
+
+if (!adminExists) {
+  const hash = bcrypt.hashSync("admin123", 10);
+
+  db.prepare(
+    "INSERT INTO users (username, password_hash, role) VALUES (?,?,?)"
+  ).run("admin", hash, "admin");
+
+  console.log("✅ Default admin user created (admin/admin123)");
+}
+
 /* ===================== VIEW ENGINE ===================== */
 app.engine('html', ejs.renderFile);
 app.set('view engine', 'html');
@@ -44,7 +59,7 @@ app.use(express.json());
 app.use(methodOverride('_method'));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-/* ===================== SESSION FIX ===================== */
+/* ===================== SESSION ===================== */
 app.use(session({
   store: new SQLiteStore({
     db: 'sessions.sqlite',
@@ -113,5 +128,5 @@ app.get('/', requireLogin, (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
