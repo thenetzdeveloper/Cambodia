@@ -1,0 +1,24 @@
+{
+  "name": "cambodia-people-homework",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "node server.js",
+    "init-db": "node scripts/init_db.js",
+    "import-xlsx": "node scripts/import_xlsx.js",
+    "generate-people": "node scripts/generate_people.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.6.0",
+    "connect-sqlite3": "^0.9.15",
+    "dotenv": "^16.4.7",
+    "ejs": "^4.0.1",
+    "exceljs": "^4.4.0",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "method-override": "^3.0.0"
+  }
+}

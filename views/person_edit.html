@@ -1,0 +1,103 @@
+<%- include('partials/header.html', { title: 'Edit Person' }) %>
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/people" class="text-decoration-none">People</a></li>
+        <li class="breadcrumb-item active">Edit #<%= person.id %></li>
+      </ol>
+    </nav>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between border-bottom">
+        <h4 class="card-title mb-0 fw-bold text-dark">
+          <i class="bi bi-pencil-square me-2 text-primary"></i>Edit Profile
+        </h4>
+        <span class="badge bg-light text-muted border">System ID: <%= person.id %></span>
+      </div>
+
+      <div class="card-body p-4">
+        <form method="post" action="/people/<%= person.id %>?_method=PUT" class="row g-4">
+          <div class="col-md-7">
+            <label class="form-label fw-semibold">Full Name</label>
+            <input class="form-control bg-light" name="full_name" value="<%= person.full_name %>" required />
+          </div>
+
+          <div class="col-md-2 col-6">
+            <label class="form-label fw-semibold">Gender</label>
+            <select class="form-select bg-light" name="gender">
+              <option value="M" <%= person.gender === 'M' ? 'selected' : '' %>>Male (M)</option>
+              <option value="F" <%= person.gender === 'F' ? 'selected' : '' %>>Female (F)</option>
+            </select>
+          </div>
+
+          <div class="col-md-3 col-6">
+            <label class="form-label fw-semibold">Age</label>
+            <div class="input-group">
+              <input
+                class="form-control bg-light"
+                type="number"
+                min="15"
+                max="60"
+                name="age"
+                value="<%= person.age %>"
+                required
+              />
+              <span class="input-group-text small">Years</span>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Province</label>
+            <select class="form-select border-primary-subtle" id="province" name="province_code">
+              <% provinces.forEach((p) => { %>
+                <option value="<%= p.code %>" <%= person.province_code === p.code ? 'selected' : '' %>>
+                  <%= p.code %> - <%= p.name_en %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">District</label>
+            <select class="form-select" id="district" name="district_code" data-selected="<%= person.district_code %>">
+              <% districts.forEach((d) => { %>
+                <option value="<%= d.code %>" <%= person.district_code === d.code ? 'selected' : '' %>>
+                  <%= d.code %> - <%= d.name_en %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Commune</label>
+            <select class="form-select" id="commune" name="commune_code" data-selected="<%= person.commune_code %>">
+              <% communes.forEach((c) => { %>
+                <option value="<%= c.code %>" <%= person.commune_code === c.code ? 'selected' : '' %>>
+                  <%= c.code %> - <%= c.name_en %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Village</label>
+            <select class="form-select" id="village" name="village_code" data-selected="<%= person.village_code %>">
+              <% villages.forEach((v) => { %>
+                <option value="<%= v.code %>" <%= person.village_code === v.code ? 'selected' : '' %>>
+                  <%= v.code %> - <%= v.name_en %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="col-12 mt-5 pt-3 border-top d-flex gap-2">
+            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">Update Record</button>
+            <a class="btn btn-outline-secondary px-4 py-2" href="/people">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer.html') %>

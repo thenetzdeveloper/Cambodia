@@ -1,0 +1,198 @@
+<%- include('partials/header.html', { title: 'Search People' }) %>
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0 fw-bold text-primary">Cambodia Map</h5>
+  </div>
+  <div class="card-body p-0">
+    <div id="cambodia-map" aria-label="Map of Cambodia"></div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white py-3 border-bottom">
+    <h5 class="card-title mb-0 fw-bold text-primary">
+      <i class="bi bi-search me-2"></i>Advanced Filter
+    </h5>
+  </div>
+  <div class="card-body bg-light-subtle">
+    <form method="get" action="/people" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label small fw-bold text-uppercase text-muted">Full Name</label>
+        <input
+          class="form-control shadow-sm"
+          name="name"
+          value="<%= q.name || '' %>"
+          placeholder="Search by name..."
+        />
+      </div>
+      <div class="col-md-2 col-6">
+        <label class="form-label small fw-bold text-uppercase text-muted">Gender</label>
+        <select class="form-select shadow-sm" name="gender">
+          <option value="">All Genders</option>
+          <option value="M" <%= q.gender === 'M' ? 'selected' : '' %>>Male</option>
+          <option value="F" <%= q.gender === 'F' ? 'selected' : '' %>>Female</option>
+        </select>
+      </div>
+      <div class="col-md-2 col-6">
+        <label class="form-label small fw-bold text-uppercase text-muted">Age</label>
+        <input
+          class="form-control shadow-sm"
+          name="age"
+          value="<%= q.age || '' %>"
+          type="number"
+          min="1"
+          max="90"
+          placeholder="All Ages"
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label small fw-bold text-uppercase text-muted">Province</label>
+        <select class="form-select shadow-sm" id="province" name="province_code">
+          <option value="">All Provinces</option>
+          <% provinces.forEach((p) => { %>
+            <option value="<%= p.code %>" <%= q.province_code === p.code ? 'selected' : '' %>>
+              <%= p.code %> - <%= p.name_en %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-bold text-uppercase text-muted">District</label>
+        <select
+          class="form-select shadow-sm"
+          id="district"
+          name="district_code"
+          data-selected="<%= q.district_code || '' %>"
+        >
+          <option value="">All Districts</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-bold text-uppercase text-muted">Commune</label>
+        <select
+          class="form-select shadow-sm"
+          id="commune"
+          name="commune_code"
+          data-selected="<%= q.commune_code || '' %>"
+        >
+          <option value="">All Communes</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-bold text-uppercase text-muted">Village</label>
+        <select
+          class="form-select shadow-sm"
+          id="village"
+          name="village_code"
+          data-selected="<%= q.village_code || '' %>"
+        >
+          <option value="">All Villages</option>
+        </select>
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-primary flex-fill fw-bold shadow-sm">Search</button>
+        <a class="btn btn-outline-secondary flex-fill shadow-sm" href="/">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-end mb-3 px-1">
+  <div>
+    <h4 class="mb-0 fw-bold">
+      People:
+      <span class="text-muted small"><%= total.toLocaleString() %></span>
+    </h4>
+  </div>
+  <div class="text-end">
+    <% if (pages > 0) { %>
+      <span class="badge bg-white text-dark border shadow-sm py-2 px-3">
+        Page <%= page %> of <%= pages %>
+      </span>
+    <% } %>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 people-table">
+      <thead class="table-light border-bottom">
+        <tr>
+          <th class="ps-3">ID</th>
+          <th>Identity</th>
+          <th>Age/Gen</th>
+          <th>Location Hierarchy</th>
+          <th class="text-end pe-3">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% results.forEach((r) => { %>
+          <tr>
+            <td class="ps-3 text-muted small" data-label="ID">#<%= r.id %></td>
+            <td data-label="Identity">
+              <div class="fw-bold text-dark"><%= r.full_name %></div>
+            </td>
+            <td data-label="Age / Gender">
+              <span class="badge bg-light text-dark border-0"><%= r.age %>y</span>
+              <span class="text-muted small ms-1 text-uppercase"><%= r.gender %></span>
+            </td>
+            <td data-label="Location">
+              <div class="small">
+                <span class="text-dark fw-medium"><%= r.province_en %></span>
+                <span class="text-muted mx-1">/</span>
+                <%= r.district_en %>
+                <span class="text-muted mx-1">/</span>
+                <span class="text-muted fst-italic"><%= r.village_en %></span>
+              </div>
+              <div class="text-muted" style="font-size: 0.7rem">
+                Codes: <%= r.province_code %>-<%= r.district_code %>-<%= r.village_code %>
+              </div>
+            </td>
+            <td class="text-end pe-3" data-label="Actions">
+              <a class="btn btn-sm btn-outline-primary px-3 rounded-pill" href="/people/<%= r.id %>/edit">
+                <i class="bi bi-pencil"></i> Edit
+              </a>
+            </td>
+          </tr>
+        <% }) %>
+        <% if (!results.length) { %>
+          <tr class="empty-row">
+            <td colspan="5" class="text-center py-5">
+              <div class="text-muted mt-2">No records match your search criteria.</div>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<% if (pages > 1) { %>
+  <nav class="mt-4">
+    <ul class="pagination justify-content-center shadow-sm">
+      <%
+        const qs = new URLSearchParams(q);
+        const makeLink = (p) => {
+          qs.set('page', String(p));
+          return '/people?' + qs.toString();
+        };
+        const start = Math.max(1, page - 2);
+        const end = Math.min(pages, page + 2);
+      %>
+      <li class="page-item <%= page === 1 ? 'disabled' : '' %>">
+        <a class="page-link" href="<%= makeLink(1) %>">&laquo;</a>
+      </li>
+      <% for (let p = start; p <= end; p++) { %>
+        <li class="page-item <%= p === page ? 'active' : '' %>">
+          <a class="page-link" href="<%= makeLink(p) %>"><%= p %></a>
+        </li>
+      <% } %>
+      <li class="page-item <%= page === pages ? 'disabled' : '' %>">
+        <a class="page-link" href="<%= makeLink(pages) %>">&raquo;</a>
+      </li>
+    </ul>
+  </nav>
+<% } %>
+<%- include('partials/footer.html') %>
+
+
