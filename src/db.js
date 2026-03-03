@@ -2,17 +2,31 @@ const path = require('path');
 const fs = require('fs');
 const Database = require('better-sqlite3');
 
-const DB_PATH = process.env.DB_PATH || './db/app.sqlite';
-const resolved = path.resolve(DB_PATH);
+/*
+  Railway-safe database path
+  - Always stores database inside project /db folder
+  - Still allows override using DB_PATH environment variable
+*/
+
+const DB_PATH = process.env.DB_PATH
+  ? path.resolve(process.env.DB_PATH)
+  : path.join(__dirname, '..', 'db', 'app.sqlite');
 
 function openDb() {
-  fs.mkdirSync(path.dirname(resolved), { recursive: true });
-  const db = new Database(resolved);
-  // Performance pragmas (safe defaults)
+  // Ensure directory exists
+  const dir = path.dirname(DB_PATH);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  const db = new Database(DB_PATH);
+
+  // Safe performance settings
   db.pragma('journal_mode = WAL');
   db.pragma('synchronous = NORMAL');
   db.pragma('temp_store = MEMORY');
+
   return db;
 }
 
-module.exports = { openDb, DB_PATH: resolved };
+module.exports = { openDb, DB_PATH };
